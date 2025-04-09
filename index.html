@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RAJ MODE Login</title>
+
+  <!-- Tailwind CSS & FontAwesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;700&display=swap" rel="stylesheet" />
+
+  <!-- Firebase Auth -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD89CQpILmaxVdH-X7L-Ex4rW-XIBA3vHU",
+      authDomain: "webai-b6629.firebaseapp.com",
+      databaseURL: "https://webai-b6629-default-rtdb.asia-southeast1.firebasedatabase.app/",
+      projectId: "webai-b6629",
+      storageBucket: "webai-b6629.appspot.com",
+      messagingSenderId: "358930931757",
+      appId: "1:358930931757:web:ed7b1ab7274bbdb3b7d8a4"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const keyInput = document.getElementById("keyInput");
+      const loginBtn = document.getElementById("loginBtn");
+      const messageText = document.getElementById("messageText");
+      const deviceID = navigator.userAgent || "UnknownDevice";
+
+      loginBtn.addEventListener("click", async () => {
+        const key = keyInput.value.trim();
+        if (key === "") return;
+
+        const snapshot = await get(ref(db, "keys"));
+        if (!snapshot.exists()) {
+          messageText.textContent = "KEY WASN'T EXIST";
+          messageText.className = "text-red-500 font-bold";
+          return;
+        }
+
+        let keyFound = false;
+        let keyID = null;
+        let existingDevice = null;
+
+        snapshot.forEach(childSnapshot => {
+          const data = childSnapshot.val();
+          if (data.key === key) {
+            keyFound = true;
+            keyID = childSnapshot.key;
+            existingDevice = data.deviceID;
+          }
+        });
+
+        if (!keyFound) {
+          messageText.textContent = "KEY WASN'T EXIST";
+          messageText.className = "text-red-500 font-bold";
+        } else if (existingDevice !== "NA" && existingDevice !== deviceID) {
+          messageText.textContent = "The Key Is Already Login By Another User";
+          messageText.className = "text-red-500 font-bold";
+        } else {
+          await update(ref(db, "keys/" + keyID), { deviceID });
+          window.location.href = "select.html";
+        }
+      });
+    });
+  </script>
+
+  <!-- Particle.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.11.1/tsparticles.bundle.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'El Messiri', sans-serif;
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #tsparticles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .glass-card {
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(16px);
+      border-radius: 20px;
+      padding: 40px 30px;
+      border: 1px solid rgba(255, 0, 80, 0.7);
+      box-shadow: 0 0 20px rgba(255, 0, 80, 0.4);
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+      animation: fadeIn 1.2s ease;
+    }
+
+    .logo {
+      width: 120px;
+      margin: 0 auto 20px;
+      filter: drop-shadow(0 0 5px #ff0055);
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: bold;
+      color: #ff0055;
+      text-shadow: 0 0 8px #ff0055;
+      margin-bottom: 20px;
+    }
+
+    input {
+      background: rgba(17, 17, 17, 0.95);
+      border: 2px solid #ff0055;
+      color: #ff0055;
+      box-shadow: 0 0 8px #ff0055;
+    }
+
+    input::placeholder {
+      color: #ff005599;
+    }
+
+    button {
+      background: #ff0055;
+      color: #fff;
+      font-weight: bold;
+      box-shadow: 0 0 12px #ff0055;
+    }
+
+    button:hover {
+      background: #cc0044;
+      box-shadow: 0 0 16px #ff0055;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: scale(0.9);}
+      to {opacity: 1; transform: scale(1);}
+    }
+
+    .neon-text {
+      color: #ff0055;
+      text-shadow: 0 0 5px #ff0055;
+    }
+  </style>
+</head>
+<body>
+
+<div id="tsparticles"></div>
+
+<div class="glass-card">
+  <img src="https://i.postimg.cc/9F14k2M7/cropped-image-4.png" alt="Logo" class="logo" />
+  <h1 class="title">RAJ MODE</h1>
+  <input type="text" id="keyInput" placeholder="Enter Key" class="w-full p-3 rounded-lg text-center font-semibold text-lg mb-4" />
+  <p id="messageText" class="text-sm font-bold"></p>
+  <button id="loginBtn" class="w-full py-3 rounded-lg mt-3 text-lg">LOGIN</button>
+  <p class="mt-4 text-sm neon-text">Don't Have Key? <span class="font-bold underline cursor-pointer">Buy Here</span></p>
+</div>
+
+<!-- Particle Config -->
+<script>
+  tsParticles.load("tsparticles", {
+    fullScreen: { enable: true },
+    particles: {
+      number: { value: 60 },
+      color: { value: ["#ff0055", "#00ffff", "#00ff88", "#ffcc00"] },
+      shape: { type: "circle" },
+      opacity: { value: 0.7 },
+      size: { value: { min: 2, max: 5 } },
+      move: {
+        enable: true,
+        speed: 2,
+        direction: "none",
+        outModes: { default: "bounce" }
+      },
+      links: {
+        enable: true,
+        distance: 100,
+        color: "#ff0055",
+        opacity: 0.5,
+        width: 1
+      }
+    },
+    background: {
+      color: "#000000"
+    }
+  });
+</script>
+
+</body>
+</html>
